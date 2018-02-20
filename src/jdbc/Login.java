@@ -11,9 +11,11 @@ import java.sql.SQLException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -64,9 +66,19 @@ public class Login extends HttpServlet {
 				//response.setStatus(response.SC_MOVED_TEMPORARILY);
 				//response.setHeader("Location", site);
 				// out.println("udalo sie zalogowac");
+				HttpSession session = request.getSession();
+				session.setAttribute("user", username);
+				session.setMaxInactiveInterval(30*60);
+				Cookie userName = new Cookie("user", username);
+				userName.setMaxAge(30*60);
+				response.addCookie(userName);
 				response.sendRedirect("panel.jsp");
 			} else {
-				response.sendRedirect("login.jsp");
+				RequestDispatcher rd = getServletContext().getRequestDispatcher("/login.jsp");
+				out.println("<font color=red>Either user name or password is wrong.</font>");
+				rd.include(request, response);
+				
+				//response.sendRedirect("login.jsp");
 				//RequestDispatcher rd = request.getRequestDispatcher("login.jsp");
 				out.print("incorrect login or password");
 				//rd.include(request, response);
